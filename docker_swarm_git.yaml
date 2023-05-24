@@ -1,0 +1,12 @@
+---
+- name: Clone and pull git
+  hosts: all
+  # become: true
+  remote_user: ec2-user
+  become: yes
+  become_method: su
+  vars:
+    PROJECT_NAME: ansible-clone-repo
+
+  roles:
+    - docker_git
