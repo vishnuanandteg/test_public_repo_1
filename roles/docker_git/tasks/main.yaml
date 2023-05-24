@@ -1,0 +1,49 @@
+- name: Install main dependencies
+  yum:
+    update_cache: true
+    name:
+      - git
+      - python3-requests
+
+- name: Clone a public repository into {{PROJECT_NAME}} folder.
+  git:
+    repo: "https://github.com/vishnuanandteg/test_public_repo_1.git"
+    version: "main"
+    dest: "/opt/{{ PROJECT_NAME }}"
+    accept_hostkey: yes
+  become: yes
+
+- name: Remove a file from the folder
+  ansible.builtin.file:
+    path: "/opt/{{ PROJECT_NAME }}/success"
+    state: absent
+
+- name: Git restore
+  ansible.builtin.shell:
+    cmd: git restore .
+    chdir: /opt/{{ PROJECT_NAME }}
+
+- name: Git pull again
+  git:
+    repo: "https://github.com/vishnuanandteg/test_public_repo_1.git"
+    version: "main"
+    dest: "/opt/{{ PROJECT_NAME }}"
+    update: yes
+    clone: no
+
+- name: Docker pull
+  community.docker.docker_image:
+    name: nginx
+    source: pull
+
+# - name: Docker service update
+#   docker_swarm_service:
+#     name: nginx_service
+#     replicas: 3
+#     update_config:
+#       parallelism: 2
+#       delay: 10s
+
+- name: Docker service update via shell
+  ansible.builtin.shell:
+    cmd: docker service update --replicas 3 nginx_service
